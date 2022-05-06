@@ -1,14 +1,14 @@
-from typing import Tuple, Optional, Callable
+from typing import List
 from pydash import objects
 
+from custom_types import Mapping
 
 class MappingError(Exception):
     pass
 
 
 class EntityMapper:
-
-    def __init__(self, mappings: Tuple[str, str, Optional[Callable]]):
+    def __init__(self, mappings: List[Mapping]):
         self.mappings = mappings
 
     def transform(self, data: dict) -> dict:
