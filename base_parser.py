@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 from mapper import BaseMapper
 from pydantic import BaseModel
 
-class BaseParser:
+class Parser:
     def __init__(self, entity:BaseModel, mapper: BaseMapper) -> None:
         self._entity = entity
         self._mapper = mapper

@@ -1,7 +1,7 @@
-from base_parser import BaseParser
+from base_parser import Parser
 from tweet import Tweet, TweetMapper
 def main():
-    parser = BaseParser(Tweet, TweetMapper())
+    parser = Parser(Tweet, TweetMapper())
     data = {
         "id": 1,
         "tweet": "HelloWorld",

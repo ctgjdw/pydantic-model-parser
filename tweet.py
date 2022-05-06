@@ -2,7 +2,6 @@ from typing import List
 
 from pydantic import BaseModel
 
-from base_parser import BaseParser
 from custom_types import Mapping
 from mapper import BaseMapper
 
