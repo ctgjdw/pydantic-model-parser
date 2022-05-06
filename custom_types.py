@@ -5,3 +5,7 @@ OldField = str
 Transformer = Callable[[Any], Any]
 Mapping = Tuple[NewField, OldField, Optional[Transformer]]
 JsonObject = Dict[Any, Any]
+
+
+class MappingError(Exception):
+    pass
