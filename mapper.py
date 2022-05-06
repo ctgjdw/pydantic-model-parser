@@ -1,22 +1,41 @@
-from typing import Tuple, Optional, Callable
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List
+
 from pydash import objects
 
-
-class MappingError(Exception):
-    pass
+from custom_types import Mapping, MappingError
 
 
-class EntityMapper:
+class BaseMapper(ABC):
+    @staticmethod
+    @abstractmethod
+    def get_mapping() -> List[Mapping]:
+        """
+        Abstract static property containing the list of mappings, implemented as a
+        method as a workaround.
 
-    def __init__(self, mappings: Tuple[str, str, Optional[Callable]]):
-        self.mappings = mappings
+        Returns:
+            List[Mapping]: List of `(new_field, old_field, transform_func)` mappings
+        """
+        raise NotImplementedError()
 
-    def transform(self, data: dict) -> dict:
+    @classmethod
+    def transform(cls, data: Dict[Any, Any]) -> Dict[Any, Any]:
+        """
+        Performs the JSON transformation from raw objects into our custom mappings.
+
+
+        Args:
+            data (Dict[Any, Any]): The original raw data object.
+
+        Returns:
+            Dict[Any, Any]: The transformed data object.
+        """
         result = {}
-        for new_key, old_key, mapping_func in self.mappings:
-            old_val = objects.get(data, old_key)
-            if not old_val:
+        for new_key, old_key, transform in cls.get_mapping():
+            if not objects.has(data, old_key):
                 raise MappingError(f"Invalid mapping key: {old_key}")
-            objects.set_(result, new_key, mapping_func(
-                old_key) if mapping_func else old_val)
+
+            old_val = objects.get(data, old_key)
+            objects.set_(result, new_key, transform(old_val) if transform else old_val)
         return result

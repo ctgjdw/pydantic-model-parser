@@ -1,8 +1,9 @@
-from tweet import TweetParser
+from base_parser import Parser
+from tweet import Tweet, TweetMapper
 
 
 def main():
-    parser = TweetParser()
+    parser = Parser(Tweet, TweetMapper)
     data = {
         "id": 1,
         "tweet": "HelloWorld",
@@ -13,7 +14,7 @@ def main():
     print(parser.parse(data))
 
     data_list = [data, data]
-    print(parser.parse_many(data_list))
+    print(parser.parse(data_list))
 
 
 if __name__ == "__main__":

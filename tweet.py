@@ -1,5 +1,9 @@
+from typing import List
+
 from pydantic import BaseModel
-from base_parser import BaseParser
+
+from custom_types import Mapping
+from mapper import BaseMapper
 
 
 class User(BaseModel):
@@ -12,14 +16,12 @@ class Tweet(BaseModel):
     tweet: str
     user: User
 
-
-class TweetParser(BaseParser):
-    _mappers = [
-        ('id', 'id', None),
-        ('tweet', 'tweet', None),
-        ('user.name', 'user_name', None),
-        ('user.id', 'user_id', None)
-    ]
-
-    def __init__(self):
-        super().__init__(Tweet, self._mappers)
+class TweetMapper(BaseMapper):
+    @staticmethod
+    def get_mapping() -> List[Mapping]:
+        return [
+            ('id', 'id', None),
+            ('tweet', 'tweet', None),
+            ('user.name', 'user_name', None),
+            ('user.id', 'user_id', None)
+        ]
