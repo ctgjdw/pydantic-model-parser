@@ -9,7 +9,7 @@ from custom_types import Mapping
 #     pass
 
 
-class EntityMapper(ABC):
+class BaseMapper(ABC):
     @staticmethod
     @abstractmethod
     def get_mapping() -> List[Mapping]:
