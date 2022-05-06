@@ -12,7 +12,7 @@ def main():
     print(parser.parse(data))
 
     data_list = [data, data]
-    print(parser.parse_many(data_list))
+    print(parser.parse(data_list))
 
 
 if __name__ == "__main__":
