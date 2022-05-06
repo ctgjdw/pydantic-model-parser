@@ -13,10 +13,15 @@ class EntityMapper:
 
     def transform(self, data: dict) -> dict:
         result = {}
-        for new_key, old_key, mapping_func in self.mappings:
+        for new_key, old_key, transform in self.mappings:
             old_val = objects.get(data, old_key)
-            if not old_val:
-                raise MappingError(f"Invalid mapping key: {old_key}")
-            objects.set_(result, new_key, mapping_func(
-                old_key) if mapping_func else old_val)
+            
+            # Uncommented this snippet, some values may be intentionally left as null
+            # and we might want to capture that.
+
+            # if not old_val:
+            #     raise MappingError(f"Invalid mapping key: {old_key}")
+            
+            objects.set_(result, new_key, transform(
+                old_key) if transform else old_val)
         return result
