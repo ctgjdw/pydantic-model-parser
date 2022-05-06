@@ -1,4 +1,5 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union, overload
+from custom_types import JsonObject
 from mapper import BaseMapper
 from pydantic import BaseModel
 
@@ -7,10 +8,19 @@ class Parser:
         self._entity = entity
         self._mapper = mapper
 
-    def parse(self, raw:Dict[Any, Any]) -> BaseModel:
-        parsed = self._mapper.transform(raw)
-        return self._entity.parse_obj(parsed)
+    @overload
+    def parse(self, raw: JsonObject) -> BaseModel:
+        ...
 
-    def parse_many(self, data_list: List[Dict[Any, Any]]) -> List[BaseModel]:
-        return list(map(self.parse, data_list))    
+    @overload
+    def parse(self, raw: List[JsonObject]) -> List[BaseModel]:
+        ...
+
+    def parse(self, raw:Union[JsonObject, List[JsonObject]]) -> Union[BaseModel, List[BaseModel]]:
+        if isinstance(raw, dict):
+            parsed = self._mapper.transform(raw)
+            return self._entity.parse_obj(parsed)
+
+        parsed = [self._mapper.transform(item) for item in raw]
+        return [self._entity.parse_obj(item) for item in parsed]
 
