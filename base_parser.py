@@ -1,3 +1,4 @@
+from typing import List, Dict, Any
 from mapper import BaseMapper
 from pydantic import BaseModel
 
@@ -6,12 +7,10 @@ class BaseParser:
         self._entity = entity
         self._mapper = mapper
 
-    def apply_mapping(self, data: dict) -> dict:
-        return self.entity_mapper.transform(data)
+    def parse(self, raw:Dict[Any, Any]) -> BaseModel:
+        parsed = self._mapper.transform(raw)
+        return self._entity.parse_obj(parsed)
 
-    def parse(self, data: dict) -> dict:
-        parsed = self.apply_mapping(data)
-        return self.entity_class.parse_obj(parsed)
+    def parse_many(self, data_list: List[Dict[Any, Any]]) -> List[BaseModel]:
+        return list(map(self.parse, data_list))    
 
-    def parse_many(self, data_list: List[Dict[Any, Any]]) -> List[Dict[Any, Any]]:
-        return list(map(self.parse, data_list))
