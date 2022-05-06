@@ -1,12 +1,10 @@
-from typing import Tuple, Optional, Callable, List, Dict, Any
-from mapper import EntityMapper
+from mapper import BaseMapper
 from pydantic import BaseModel
 
-
 class BaseParser:
-    def __init__(self, entity_class: BaseModel, mappings: Tuple[str, str, Optional[Callable]]):
-        self.entity_mapper = EntityMapper(mappings)
-        self.entity_class = entity_class
+    def __init__(self, entity:BaseModel, mapper: BaseMapper) -> None:
+        self._entity = entity
+        self._mapper = mapper
 
     def apply_mapping(self, data: dict) -> dict:
         return self.entity_mapper.transform(data)
