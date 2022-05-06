@@ -26,7 +26,3 @@ class TweetMapper(BaseMapper):
             ('user.name', 'user_name', None),
             ('user.id', 'user_id', None)
         ]
-
-class TweetParser(BaseParser):
-    def __init__(self):
-        super().__init__(Tweet, TweetMapper())
