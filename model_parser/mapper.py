@@ -11,6 +11,9 @@ class BaseMapper(ABC):
     An abstract base class that should be extended and implemented
     by an EntityMapper class. The class stores the mappings in the `get_mapping`
     function.
+
+    The `get_mapping` function will store an array of tuples as defined here:
+        - (`old_field_path`: str, `new_field_path`: str, `transform_func`: Optional[Callable])
     """
 
     @staticmethod

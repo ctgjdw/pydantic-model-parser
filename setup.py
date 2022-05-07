@@ -7,7 +7,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="pydantic-model-parser",
-    version="1.0.0",
+    version="1.0.1",
     description="A simple package to transform/map dictionaries, before parsing it into Pydantic.",
     long_description=README,
     long_description_content_type="text/markdown",
