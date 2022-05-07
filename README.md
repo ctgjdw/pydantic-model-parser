@@ -6,6 +6,12 @@ A simple package to transform/map dictionaries, before parsing it into Pydantic.
 
 - The models/entities should conform to `Pydantic's` Model specifications and should inherit the `pydantic.BaseModel`.
 
+## Installation
+
+```bash
+pip3 install pydantic-model-parser
+```
+
 ## Usage
 
 Firstly, define your entity using Pydantic's `BaseModel`.
