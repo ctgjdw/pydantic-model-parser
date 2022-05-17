@@ -53,8 +53,7 @@ Defining a Mapper:
 
 ```python
 # comment.py
-from model_parser.custom_types import Mapping
-from model_parser.mapper import BaseMapper
+from model_parser import Mapping, BaseMapper
 
 class CommentMapper(BaseMapper):
     @staticmethod

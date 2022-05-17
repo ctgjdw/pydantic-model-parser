@@ -7,7 +7,7 @@ More information is available at:
 
 Version:
 --------
-- pydantic-model-parser 1.0.1
+- pydantic-model-parser 1.0.2
 """
 
 

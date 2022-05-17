@@ -9,3 +9,7 @@ JsonObject = Dict[Any, Any]
 
 class MappingError(Exception):
     pass
+
+
+class TransformFuncError(Exception):
+    pass
