@@ -40,14 +40,14 @@ formatting:
   needs:
     - install-packages
   script:
-    - find . -not \( -path ./.cache -prune \ -name "setup.py") -type f -name "*.py" | xargs python -m black --check
+    - find . -not \( -name "setup.py" -o -path ./.cache -prune \) -type f -name "*.py" | xargs python -m black --check
 
 linting:
   stage: test
   needs:
     - install-packages
   script:
-    - find . -not \( -path ./.cache -prune \ -name "setup.py") -type f -name "*.py" | xargs python -m pylint
+    - find . -not \( -name "setup.py" -o -path ./.cache -prune \) -type f -name "*.py" | xargs python -m pylint
 
 code-complexity:
   stage: test
@@ -55,8 +55,8 @@ code-complexity:
   dependencies: []
   needs: []
   script:
-    - find . -not \( -path ./.cache -prune \ -name "setup.py") -type f -name "*.py" | xargs radon cc -s -o ALPHA -nd
-    - ERRORS=$(find . -not \( -path ./.cache -prune \) -type f -name "*.py" | xargs radon cc -s -o ALPHA -nd | wc -l)
+    - find . -not \( -name "setup.py" -o -path ./.cache -prune \) -type f -name "*.py" | xargs radon cc -s -o ALPHA -nd
+    - ERRORS=$(find . -not \( -name "setup.py" -o -path ./.cache -prune \) -type f -name "*.py" | xargs radon cc -s -o ALPHA -nd | wc -l)
     - if [ $ERRORS -gt 1 ]; then exit 1; else echo "Passed Cyclomatic Complexity <= 20 for all methods"; fi
 
 audit:
