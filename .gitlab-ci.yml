@@ -98,7 +98,8 @@ build-autodocs:
   stage: build
   image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/ci-runners/docker-ci-runner
   needs:
-    - lint-format
+    - linting
+    - formatting
     - code-complexity
     - job: audit
       artifacts: false
