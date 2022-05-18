@@ -42,6 +42,7 @@ class BaseMapper(ABC):
 
         Raise:
             MappingError: Raised if the an `old_field_path` in the mapping tuple is invalid
+            TransformFuncError: Raised if the transform_func ecounters an error, e.g. TypeError
         """
         result = {}
         for old_field_path, new_field_path, transform_func in cls.get_mapping():

@@ -1,0 +1,16 @@
+[[source]]
+url = "http://nexus.dag.op/repository/pypi-hosted/simple/"
+verify_ssl = false
+name = "project"
+
+[[source]]
+url = "http://public.nexus.shared.op/repository/pypi-hosted/simple/"
+verify_ssl = false
+name = "internet"
+
+[packages]
+wheel = "*"
+
+[dev-packages]
+pylint = "*"
+black = "*"

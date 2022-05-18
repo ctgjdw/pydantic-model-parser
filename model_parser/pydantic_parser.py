@@ -37,6 +37,8 @@ class Parser:
 
         Raise:
             ValidationError: Raised if there is a Validation Error that is detected by `Pydantic`. e.g. Invalid type-casting.
+            MappingError: Raised if the an `old_field_path` in the mapping tuple is invalid
+            TransformFuncError: Raised if the transform_func ecounters an error, e.g. TypeError
         """
         ...
 

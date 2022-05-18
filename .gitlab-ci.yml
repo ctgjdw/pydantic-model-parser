@@ -1,0 +1,139 @@
+image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/ci-runner/python-ci-runner:3.8
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PIP_INDEX_URL: $PYPI_INTERNET_INDEX_URL
+  PYTHON_VERSION: python3.8
+  # PORTAINER_HOOK_URL:  # Insert webhook URL for your documentation service
+
+cache: &common_cache
+  key:
+    files:
+      - requirements.txt
+  paths:
+    - .cache/
+  policy: pull
+
+before_script:
+  - python --version
+  - pip --version
+  - python3 -m venv --system-site-packages .cache/venv
+  - source .cache/venv/bin/activate
+
+stages:
+  - install
+  - test
+  - build
+  - release
+
+install-packages:
+  stage: install
+  needs: []
+  cache:
+    <<: *common_cache
+    policy: pull-push
+  script:
+    - pip install -U --trusted-host ${PUBLIC_NEXUS_SHARED_PYTHON_REGISTRY} -r requirements.txt
+
+formatting:
+  stage: test
+  needs:
+    - install-packages
+  script:
+    - find . -not \( -path ./.cache -prune \) -type f -name "*.py" | xargs python -m black --check
+
+linting:
+  stage: test
+  needs:
+    - install-packages
+  script:
+    - find . -not \( -path ./.cache -prune \) -type f -name "*.py" | xargs python -m pylint
+
+code-complexity:
+  stage: test
+  cache: {}
+  dependencies: []
+  needs: []
+  script:
+    - find . -not \( -path ./.cache -prune \) -type f -name "*.py" | xargs radon cc -s -o ALPHA -nd
+    - ERRORS=$(find . -not \( -path ./.cache -prune \) -type f -name "*.py" | xargs radon cc -s -o ALPHA -nd | wc -l)
+    - if [ $ERRORS -gt 1 ]; then exit 1; else echo "Passed Cyclomatic Complexity <= 20 for all methods"; fi
+
+audit:
+  stage: test
+  image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/ci-runners/fortify-ci-runner:python-3.8-latest
+  needs:
+    - install-packages
+  before_script:
+    - source ~/.bashrc
+    - sourceanalyzer -b $CI_PROJECT_NAME -clean
+  script:
+    - sourceanalyzer -verbose -b $CI_PROJECT_NAME -python-version 3 -python-path /usr/lib/$PYTHON_VERSION:/usr/local/lib/$PYTHON_VERSION/site-packages:.cache/venv/lib/$PYTHON_VERSION/site-packages "eo_helpers/**/*.py"
+    - sourceanalyzer -verbose -b $CI_PROJECT_NAME -scan -f $CI_PROJECT_NAME.fpr
+    - BIRTReportGenerator -template "Developer Workbook" -source $CI_PROJECT_NAME.fpr -format PDF -output $CI_PROJECT_NAME.pdf
+  artifacts:
+    expire_in: 14 days
+    paths:
+      - $CI_PROJECT_NAME.pdf
+    when: always
+  allow_failure: true
+
+wheel:
+  stage: build
+  needs:
+    - linting
+    - formatting
+    - code-complexity
+    - job: audit
+      artifacts: false
+  cache: {}
+  script: python setup.py bdist_wheel
+  artifacts:
+    paths:
+      - dist/
+  only:
+    - tags
+
+build-autodocs:
+  stage: build
+  image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/ci-runners/docker-ci-runner
+  needs:
+    - lint-format
+    - code-complexity
+    - job: audit
+      artifacts: false
+  variables:
+    DOCKER_IMAGE_NAME_VERSIONED: ${PUBLIC_DOCKER_SHARED_REGISTRY}/python-docs/pydantic-model-parser:$CI_COMMIT_TAG
+    DOCKER_IMAGE_NAME_LATEST: ${PUBLIC_DOCKER_SHARED_REGISTRY}/python-docs/pydantic-model-parser:latest
+  only:
+    - tags
+  before_script:
+    - docker login -u $PUBLIC_DOCKER_SHARED_REGISTRY_USER -p $PUBLIC_DOCKER_SHARED_REGISTRY_PASSWORD $PUBLIC_DOCKER_SHARED_REGISTRY
+  script:
+    - docker build --no-cache -f docs.Dockerfile -t ${DOCKER_IMAGE_NAME_LATEST}  -t ${DOCKER_IMAGE_NAME_VERSIONED} .
+    - docker push $DOCKER_IMAGE_NAME_LATEST
+    - docker push $DOCKER_IMAGE_NAME_VERSIONED
+
+release-autodocs:
+  stage: release
+  image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/base/python:3.8
+  cache: {}
+  needs:
+    - build-autodocs
+  only:
+    - tags
+  script:
+    - wget --post-data="" $PORTAINER_HOOK_URL
+
+push:
+  stage: release
+  cache: {}
+  needs:
+    - wheel
+  script:
+    - cd dist
+    - WHEEL_FILENAME=$(ls | sort | tail -n 1)
+    - echo "Uploading $WHEEL_FILENAME into Nexus ($TWINE_REPOSITORY_URL)"
+    - python -m twine upload $WHEEL_FILENAME
+  only:
+    - tags
