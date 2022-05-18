@@ -1,8 +1,7 @@
-from typing import List, Union, overload
+from typing import List, Union, overload, Dict, Any
 
 from pydantic import BaseModel
 
-from model_parser.custom_types import JsonObject
 from model_parser.mapper import BaseMapper
 
 
@@ -23,15 +22,15 @@ class Parser:  # pylint: disable=too-few-public-methods
         self._mapper = mapper
 
     @overload
-    def parse(self, data: JsonObject) -> BaseModel:
+    def parse(self, data: Dict[Any, Any]) -> BaseModel:
         ...
 
     @overload
-    def parse(self, data: List[JsonObject]) -> List[BaseModel]:
+    def parse(self, data: List[Dict[Any, Any]]) -> List[BaseModel]:
         ...
 
     def parse(
-        self, data: Union[JsonObject, List[JsonObject]]
+        self, data: Union[Dict[Any, Any], List[Dict[Any, Any]]]
     ) -> Union[BaseModel, List[BaseModel]]:
         """
         The parse function takes in either [dict | list[dict]], performs the
@@ -39,7 +38,7 @@ class Parser:  # pylint: disable=too-few-public-methods
         the _model as a Pydantic entity
 
         Args:
-            data (Union[JsonObject, List[JsonObject]]): The raw data to transform and parse
+            data (Union[Dict[Any, Any], List[Dict[Any, Any]]]): The raw data to transform and parse
 
         Returns:
             Union[BaseModel, List[BaseModel]]: The `Pydantic` entities
