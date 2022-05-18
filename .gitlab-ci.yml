@@ -33,7 +33,7 @@ install-packages:
     <<: *common_cache
     policy: pull-push
   script:
-    - pip install -U --trusted-host ${PUBLIC_NEXUS_SHARED_PYTHON_REGISTRY} -r requirements.txt
+    - if [ -f "Pipfile"]; then pipenv install -d; else pip install -U --trusted-host ${PUBLIC_NEXUS_SHARED_PYTHON_REGISTRY} -r requirements.txt; fi
 
 formatting:
   stage: test
