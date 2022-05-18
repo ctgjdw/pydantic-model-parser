@@ -10,8 +10,10 @@ cache: &common_cache
   key:
     files:
       - requirements.txt
+      - Pipfile
   paths:
     - .cache/
+    - Pipfile.lock
   policy: pull
 
 before_script:

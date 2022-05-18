@@ -24,6 +24,15 @@ class Parser:  # pylint: disable=too-few-public-methods
 
     @overload
     def parse(self, data: JsonObject) -> BaseModel:
+        ...
+
+    @overload
+    def parse(self, data: List[JsonObject]) -> List[BaseModel]:
+        ...
+
+    def parse(
+        self, data: Union[JsonObject, List[JsonObject]]
+    ) -> Union[BaseModel, List[BaseModel]]:
         """
         The parse function takes in either [dict | list[dict]], performs the
         transformations as defined in the _mapper attribute and parses into
@@ -42,15 +51,6 @@ class Parser:  # pylint: disable=too-few-public-methods
             MappingError: Raised if the an `old_field_path` in the mapping tuple is invalid
             TransformFuncError: Raised if the transform_func ecounters an error, e.g. TypeError
         """
-        ...
-
-    @overload
-    def parse(self, data: List[JsonObject]) -> List[BaseModel]:
-        ...
-
-    def parse(
-        self, data: Union[JsonObject, List[JsonObject]]
-    ) -> Union[BaseModel, List[BaseModel]]:
         if isinstance(data, dict):
             parsed = self._mapper.transform(data)
             return self._model.parse_obj(parsed)
