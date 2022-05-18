@@ -1,4 +1,4 @@
-image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/ci-runner/python-ci-runner:3.8
+image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/ci-runners/python-ci-runner:3.8
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
