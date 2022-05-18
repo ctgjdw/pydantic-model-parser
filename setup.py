@@ -16,7 +16,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
     ],
-    packages=["model_parser"],
     install_requires=["pydantic >= 1.9.0", "pydash >= 5.0.0"],
     python_requires=">=3.8",
     packages=setuptools.find_packages(),
