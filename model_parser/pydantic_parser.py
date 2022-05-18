@@ -6,7 +6,7 @@ from model_parser.custom_types import JsonObject
 from model_parser.mapper import BaseMapper
 
 
-class Parser:
+class Parser:  # pylint: disable=too-few-public-methods
     """
     The Parser takes in a Pydantic `BaseModel` and a `model_parser.BaseMapper` to
     perform transformations and parse the object into the defined entity.
@@ -33,10 +33,12 @@ class Parser:
             data (Union[JsonObject, List[JsonObject]]): The raw data to transform and parse
 
         Returns:
-            Union[BaseModel, List[BaseModel]]: The `Pydantic` entities as defined by  the _model attr
+            Union[BaseModel, List[BaseModel]]: The `Pydantic` entities
+                                        as defined by  the _model attr
 
         Raise:
-            ValidationError: Raised if there is a Validation Error that is detected by `Pydantic`. e.g. Invalid type-casting.
+            ValidationError: Raised if there is a Validation Error
+                            that is detected by `Pydantic`. e.g. Invalid type-casting.
             MappingError: Raised if the an `old_field_path` in the mapping tuple is invalid
             TransformFuncError: Raised if the transform_func ecounters an error, e.g. TypeError
         """

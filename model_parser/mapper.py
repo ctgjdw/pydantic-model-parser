@@ -31,7 +31,8 @@ class BaseMapper(ABC):
     @classmethod
     def transform(cls, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
-        Performs transformations on the input dictionary using the provided mappings in the `get_mapping` function.
+        Performs transformations on the input dictionary using the
+        provided mappings in the `get_mapping` function.
 
 
         Args:
@@ -57,10 +58,13 @@ class BaseMapper(ABC):
                 new_val = transform_func(old_val) if transform_func else old_val
             except Exception as err:
                 raise TransformFuncError(
-                    f"The transform_func raised {err.__class__.__name__} when mapping ({old_field_path}) to ({new_field_path})"
+                    f"The transform_func raised {err.__class__.__name__} when"
+                    + " mapping ({old_field_path}) to ({new_field_path})"
                 ) from err
 
             objects.set_(
-                result, new_field_path, new_val,
+                result,
+                new_field_path,
+                new_val,
             )
         return result
