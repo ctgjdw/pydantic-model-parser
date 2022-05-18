@@ -3,7 +3,7 @@ image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/ci-runners/python-ci-runner:3.8
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PIP_INDEX_URL: $PYPI_INTERNET_INDEX_URL
-  PYTHON_VERSION: python3.8
+  PYTHON_VERSION: "3.8"
   # PORTAINER_HOOK_URL:  # Insert webhook URL for your documentation service
 
 cache: &common_cache
@@ -70,7 +70,7 @@ audit:
     - source ~/.bashrc
     - sourceanalyzer -b $CI_PROJECT_NAME -clean
   script:
-    - sourceanalyzer -verbose -b $CI_PROJECT_NAME -python-version 3 -python-path /usr/lib/$PYTHON_VERSION:/usr/local/lib/$PYTHON_VERSION/site-packages:.cache/venv/lib/$PYTHON_VERSION/site-packages "eo_helpers/**/*.py"
+    - sourceanalyzer -verbose -b $CI_PROJECT_NAME -python-version 3 -python-path /usr/lib/python${PYTHON_VERSION}:/usr/local/lib/python${PYTHON_VERSION}:.cache/venv/lib/python${PYTHON_VERSION} "./*.py" "./**/*.py"
     - sourceanalyzer -verbose -b $CI_PROJECT_NAME -scan -f $CI_PROJECT_NAME.fpr
     - BIRTReportGenerator -template "Developer Workbook" -source $CI_PROJECT_NAME.fpr -format PDF -output $CI_PROJECT_NAME.pdf
   artifacts:
