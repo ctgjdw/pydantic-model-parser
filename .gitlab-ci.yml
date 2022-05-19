@@ -89,7 +89,6 @@ wheel:
     - code-complexity
     - job: audit
       artifacts: false
-  cache: {}
   script: python setup.py bdist_wheel
   artifacts:
     paths:
