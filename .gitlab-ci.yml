@@ -100,6 +100,10 @@ wheel:
 push:
   stage: release
   cache: {}
+  variables:
+    TWINE_REPOSITORY_URL: $PYPI_INTERNET_INDEX_URL
+    TWINE_USERNAME: $PUBLIC_NEXUS_REGISTRY_USER
+    TWINE_PASSWORD: $PRIVATE_NEXUS_REGISTRY_PASSWORD
   needs:
     - wheel
   script:
