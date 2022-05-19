@@ -1,18 +1,21 @@
 [[source]]
-url = "http://nexus.dag.op/repository/pypi-hosted/simple/"
-verify_ssl = false
-name = "project"
-
-[[source]]
 url = "http://public.nexus.shared.op/repository/pypi-hosted/simple/"
 verify_ssl = false
 name = "internet"
 
+[[source]]
+url = "http://nexus.dag.op/repository/pypi-hosted/simple/"
+verify_ssl = false
+name = "project"
+
+
 [packages]
-wheel = "*"
 pydantic = ">=1.9.0"
 pydash = ">=5.0.0"
 
 [dev-packages]
 pylint = "*"
 black = "*"
+wheel = "*"
+setuptools = "*"
+setuptools-pipfile = "*"

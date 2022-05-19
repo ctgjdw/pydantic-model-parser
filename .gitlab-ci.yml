@@ -4,7 +4,6 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PIP_INDEX_URL: $PYPI_INTERNET_INDEX_URL
   PYTHON_VERSION: "3.8"
-  # PORTAINER_HOOK_URL:  # Insert webhook URL for your documentation service
 
 cache: &common_cache
   key:
