@@ -78,6 +78,8 @@ audit:
       - $CI_PROJECT_NAME.pdf
     when: always
   allow_failure: true
+  rules:
+    - if: "$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH"
 
 wheel:
   stage: build
