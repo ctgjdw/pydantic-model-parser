@@ -1,0 +1,110 @@
+image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/ci-runners/python-ci-runner:3.8
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PIP_INDEX_URL: $PYPI_INTERNET_INDEX_URL
+  PYTHON_VERSION: "3.8"
+
+cache: &common_cache
+  key:
+    files:
+      - requirements.txt
+      - Pipfile
+  paths:
+    - .cache/
+    - Pipfile.lock
+  policy: pull
+
+before_script:
+  - python --version
+  - pip --version
+  - python3 -m venv --system-site-packages .cache/venv
+  - source .cache/venv/bin/activate
+
+stages:
+  - install
+  - test
+  - build
+  - release
+
+install-packages:
+  stage: install
+  needs: []
+  cache:
+    <<: *common_cache
+    policy: pull-push
+  script:
+    - if [ -f "Pipfile" ]; then pipenv install -d; else pip install -U --trusted-host ${PUBLIC_NEXUS_SHARED_PYTHON_REGISTRY} -r requirements.txt; fi
+
+formatting:
+  stage: test
+  needs:
+    - install-packages
+  script:
+    - find . -not \( -path ./.cache -prune \) -type f -name "*.py" | xargs python -m black --check
+
+linting:
+  stage: test
+  needs:
+    - install-packages
+  script:
+    - find . -not \( -path ./.cache -prune \) -type f -name "*.py" | xargs python -m pylint
+
+code-complexity:
+  stage: test
+  cache: {}
+  dependencies: []
+  needs: []
+  script:
+    - find . -not \( -path ./.cache -prune \) -type f -name "*.py" | xargs radon cc -s -o ALPHA -nd
+    - ERRORS=$(find . -not \( -path ./.cache -prune \) -type f -name "*.py" | xargs radon cc -s -o ALPHA -nd | wc -l)
+    - if [ $ERRORS -gt 1 ]; then exit 1; else echo "Passed Cyclomatic Complexity <= 20 for all methods"; fi
+
+audit:
+  stage: test
+  image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/ci-runners/fortify-ci-runner:python-3.8-latest
+  needs:
+    - install-packages
+  before_script:
+    - source ~/.bashrc
+    - sourceanalyzer -b $CI_PROJECT_NAME -clean
+  script:
+    - sourceanalyzer -verbose -b $CI_PROJECT_NAME -python-version 3 -python-path /usr/lib/python${PYTHON_VERSION}:/usr/local/lib/python${PYTHON_VERSION}:.cache/venv/lib/python${PYTHON_VERSION} "./*.py" "./**/*.py"
+    - sourceanalyzer -verbose -b $CI_PROJECT_NAME -scan -f $CI_PROJECT_NAME.fpr
+    - BIRTReportGenerator -template "Developer Workbook" -source $CI_PROJECT_NAME.fpr -format PDF -output $CI_PROJECT_NAME.pdf
+  artifacts:
+    expire_in: 14 days
+    paths:
+      - $CI_PROJECT_NAME.pdf
+    when: always
+  allow_failure: true
+  rules:
+    - if: "$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH"
+
+wheel:
+  stage: build
+  needs:
+    - linting
+    - formatting
+    - code-complexity
+    - job: audit
+      artifacts: false
+  script: python setup.py bdist_wheel
+  artifacts:
+    paths:
+      - dist/
+  only:
+    - tags
+
+push:
+  stage: release
+  cache: {}
+  needs:
+    - wheel
+  script:
+    - cd dist
+    - WHEEL_FILENAME=$(ls | sort | tail -n 1)
+    - echo "Uploading $WHEEL_FILENAME into Nexus ($TWINE_REPOSITORY_URL)"
+    - python -m twine upload $WHEEL_FILENAME
+  only:
+    - tags

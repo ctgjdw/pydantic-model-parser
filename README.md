@@ -53,8 +53,8 @@ Defining a Mapper:
 
 ```python
 # comment.py
-from model_parser.custom_types import Mapping
-from model_parser.mapper import BaseMapper
+from typings import List
+from model_parser import Mapping, BaseMapper
 
 class CommentMapper(BaseMapper):
     @staticmethod
@@ -72,6 +72,7 @@ Lastly, to **parse** objects:
 ```python
 # main.py
 from comment import Comment, CommentMapper
+from model_parser import Parser
 
 data = {
         "id": 1,

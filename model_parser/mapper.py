@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from pydash import objects
 
-from model_parser.custom_types import Mapping, MappingError
+from model_parser.custom_types import Mapping, MappingError, TransformFuncError
 
 
 class BaseMapper(ABC):
@@ -31,7 +31,8 @@ class BaseMapper(ABC):
     @classmethod
     def transform(cls, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
-        Performs transformations on the input dictionary using the provided mappings in the `get_mapping` function.
+        Performs transformations on the input dictionary using the
+        provided mappings in the `get_mapping` function.
 
 
         Args:
@@ -42,6 +43,7 @@ class BaseMapper(ABC):
 
         Raise:
             MappingError: Raised if the an `old_field_path` in the mapping tuple is invalid
+            TransformFuncError: Raised if the transform_func ecounters an error, e.g. TypeError
         """
         result = {}
         for old_field_path, new_field_path, transform_func in cls.get_mapping():
@@ -51,9 +53,18 @@ class BaseMapper(ABC):
                 )
 
             old_val = objects.get(data, old_field_path)
+
+            try:
+                new_val = transform_func(old_val) if transform_func else old_val
+            except Exception as err:
+                raise TransformFuncError(
+                    f"The transform_func raised {err.__class__.__name__} when"
+                    + " mapping ({old_field_path}) to ({new_field_path})"
+                ) from err
+
             objects.set_(
                 result,
                 new_field_path,
-                transform_func(old_val) if transform_func else old_val,
+                new_val,
             )
         return result
