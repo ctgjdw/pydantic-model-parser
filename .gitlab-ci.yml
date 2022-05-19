@@ -101,15 +101,15 @@ push:
   stage: release
   cache: {}
   variables:
-    TWINE_REPOSITORY_URL: $PYPI_INTERNET_INDEX_URL
+    TWINE_REPOSITORY_URL: $TWINE_PUBLIC_NEXUS_URL
     TWINE_USERNAME: $PUBLIC_NEXUS_REGISTRY_USER
-    TWINE_PASSWORD: $PRIVATE_NEXUS_REGISTRY_PASSWORD
+    TWINE_PASSWORD: $PUBLIC_NEXUS_REGISTRY_PASSWORD
   needs:
     - wheel
   script:
     - cd dist
     - WHEEL_FILENAME=$(ls | sort | tail -n 1)
     - echo "Uploading $WHEEL_FILENAME into Nexus ($TWINE_REPOSITORY_URL)"
-    - python -m twine upload $WHEEL_FILENAME
+    - python -m twine upload --verbose $WHEEL_FILENAME
   only:
     - tags
