@@ -96,38 +96,6 @@ wheel:
   only:
     - tags
 
-build-autodocs:
-  stage: build
-  image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/ci-runners/docker-ci-runner
-  needs:
-    - linting
-    - formatting
-    - code-complexity
-    - job: audit
-      artifacts: false
-  variables:
-    DOCKER_IMAGE_NAME_VERSIONED: ${PUBLIC_DOCKER_SHARED_REGISTRY}/python-docs/pydantic-model-parser:$CI_COMMIT_TAG
-    DOCKER_IMAGE_NAME_LATEST: ${PUBLIC_DOCKER_SHARED_REGISTRY}/python-docs/pydantic-model-parser:latest
-  only:
-    - tags
-  before_script:
-    - docker login -u $PUBLIC_DOCKER_SHARED_REGISTRY_USER -p $PUBLIC_DOCKER_SHARED_REGISTRY_PASSWORD $PUBLIC_DOCKER_SHARED_REGISTRY
-  script:
-    - docker build --no-cache -f docs.Dockerfile -t ${DOCKER_IMAGE_NAME_LATEST}  -t ${DOCKER_IMAGE_NAME_VERSIONED} .
-    - docker push $DOCKER_IMAGE_NAME_LATEST
-    - docker push $DOCKER_IMAGE_NAME_VERSIONED
-
-release-autodocs:
-  stage: release
-  image: ${PUBLIC_DOCKER_SHARED_REGISTRY}/base/python:3.8
-  cache: {}
-  needs:
-    - build-autodocs
-  only:
-    - tags
-  script:
-    - wget --post-data="" $PORTAINER_HOOK_URL
-
 push:
   stage: release
   cache: {}

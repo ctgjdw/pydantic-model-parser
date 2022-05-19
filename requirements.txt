@@ -1,2 +1,0 @@
-pydantic>=1.9.0
-pydash>=5.0.0
