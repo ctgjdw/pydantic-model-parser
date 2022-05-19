@@ -30,9 +30,9 @@ data_list = [data, data]
 parser = Parser(Comment, CommentMapper)
 
 # parse into a Comment entity
-comment = parser.parse(data)
+COMMENT = parser.parse(data)
 
 # parse into a list of Comment entities
-comments = parser.parse(data_list)
+COMMENTS = parser.parse(data_list)
 
-print(comments)
+print(COMMENTS)
