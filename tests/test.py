@@ -1,4 +1,5 @@
-from typing import List
+from typing import List, Optional
+
 from pydantic import BaseModel
 from model_parser import Mapping, BaseMapper, Parser
 
@@ -6,6 +7,8 @@ from model_parser import Mapping, BaseMapper, Parser
 class User(BaseModel):
     id: int
     name: str
+    first_name: Optional[str]
+    tags: list
 
 
 class Comment(BaseModel):
@@ -18,14 +21,21 @@ class CommentMapper(BaseMapper):
     @staticmethod
     def get_mapping() -> List[Mapping]:
         return [
-            ("id", "id", None),
-            ("comment_str", "comment_str", None),
-            ("user_name", "user.name", None),
-            ("user_id", "user.id", None),
+            Mapping("id", "id"),
+            # Maps the val of comment_str to comment_str
+            Mapping("comment_str", "comment_str"),
+            # Rename key from user_name to user.name, where the `.` indicates a level of nesting
+            Mapping("user_name", "user.name"),
+            # Using transform_func to transform value and insert to new dict
+            Mapping("user_id", "user.id", lambda id_str: int(id_str)),
+            # user_first_name does not exist in input dict, defaults to None in new dict
+            Mapping("user_first_name", "user.first_name"),
+            # user_tags does not exist in input dict, use default_val instead in new dict
+            Mapping("user_tags", "user.tags", default_val=[]),
         ]
 
 
-data = {"id": 1, "comment_str": "HelloWorld", "user_id": 2, "user_name": "bob"}
+data = {"id": 1, "comment_str": "HelloWorld", "user_id": "2", "user_name": "bob"}
 data_list = [data, data]
 parser = Parser(Comment, CommentMapper)
 
@@ -35,4 +45,5 @@ COMMENT = parser.parse(data)
 # parse into a list of Comment entities
 COMMENTS = parser.parse(data_list)
 
-print(COMMENTS)
+print(COMMENT)
+

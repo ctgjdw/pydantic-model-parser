@@ -6,5 +6,4 @@ from model_parser.custom_types import (
     MappingError,
     Mapping,
     TransformFuncError,
-    TransformFunc,
 )

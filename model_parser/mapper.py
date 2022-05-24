@@ -46,13 +46,13 @@ class BaseMapper(ABC):
             TransformFuncError: Raised if the transform_func ecounters an error, e.g. TypeError
         """
         result = {}
-        for old_field_path, new_field_path, transform_func in cls.get_mapping():
-            if not objects.has(data, old_field_path):
-                raise MappingError(
-                    f"Invalid mapping, old_field_path does not exist for: {old_field_path}"
-                )
-
-            old_val = objects.get(data, old_field_path)
+        for (
+            old_field_path,
+            new_field_path,
+            transform_func,
+            default_val,
+        ) in cls.get_mapping():
+            old_val = objects.get(data, old_field_path, default=default_val)
 
             try:
                 new_val = transform_func(old_val) if transform_func else old_val
@@ -63,8 +63,6 @@ class BaseMapper(ABC):
                 ) from err
 
             objects.set_(
-                result,
-                new_field_path,
-                new_val,
+                result, new_field_path, new_val,
             )
         return result
