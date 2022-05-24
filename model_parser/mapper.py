@@ -52,7 +52,15 @@ class BaseMapper(ABC):
             transform_func,
             default_val,
         ) in cls.get_mapping():
-            old_val = objects.get(data, old_field_path, default=default_val)
+            if not objects.has(data, old_field_path):
+                objects.set_(
+                    result,
+                    new_field_path,
+                    default_val,
+                )
+                continue
+
+            old_val = objects.get(data, old_field_path)
 
             try:
                 new_val = transform_func(old_val) if transform_func else old_val
