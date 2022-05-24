@@ -3,11 +3,11 @@ from typing import Any, Callable, NamedTuple, Optional, Union, Dict, List
 
 class Mapping(NamedTuple):
     """
-    A `NamedTuple` that is used to map and transform (key, value) 
-    pairs between the input dict and the output dict. 
-    `Mapping` is also able to apply transformations 
+    A `NamedTuple` that is used to map and transform (key, value)
+    pairs between the input dict and the output dict.
+    `Mapping` is also able to apply transformations
     via transform_func to the value prior
-    to mapping. 
+    to mapping.
 
     Args:
         old_field_path (str): The path to the position of the key in the input dict,
@@ -24,10 +24,6 @@ class Mapping(NamedTuple):
     new_field_path: str
     transform_func: Optional[Callable[[Any], Any]] = None
     default_val: Union[None, Dict, List] = None
-
-
-class MappingError(Exception):
-    pass
 
 
 class TransformFuncError(Exception):

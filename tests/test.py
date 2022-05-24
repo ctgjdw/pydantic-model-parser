@@ -27,7 +27,11 @@ class CommentMapper(BaseMapper):
             # Rename key from user_name to user.name, where the `.` indicates a level of nesting
             Mapping("user_name", "user.name"),
             # Using transform_func to transform value and insert to new dict
-            Mapping("user_id", "user.id", lambda id_str: int(id_str)),
+            Mapping(
+                "user_id",
+                "user.id",
+                lambda id_str: int(id_str),  # pylint: disable=unnecessary-lambda
+            ),
             # user_first_name does not exist in input dict, defaults to None in new dict
             Mapping("user_first_name", "user.first_name"),
             # user_tags does not exist in input dict, use default_val instead in new dict
@@ -46,4 +50,3 @@ COMMENT = parser.parse(data)
 COMMENTS = parser.parse(data_list)
 
 print(COMMENT)
-
