@@ -43,10 +43,14 @@ data = {"id": 1, "comment_str": "HelloWorld", "user_id": "2", "user_name": "bob"
 data_list = [data, data]
 parser = Parser(Comment, CommentMapper)
 
+# transform dict to new_dict (after mapping)
+MAPPED_COMMENT_DICT = CommentMapper.transform(data)
+
 # parse into a Comment entity
 COMMENT = parser.parse(data)
 
 # parse into a list of Comment entities
 COMMENTS = parser.parse(data_list)
 
+print(MAPPED_COMMENT_DICT)
 print(COMMENT)

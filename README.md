@@ -78,8 +78,29 @@ class CommentMapper(BaseMapper):
             Mapping("user_tags", "user.tags", default_val=[]),
         ]
 ```
+### Transform data dict using mappings
+To **transform** a raw dict to a new format according to the mappings:
 
-Lastly, to **parse** objects:
+```python
+# main.py
+from comment import CommentMapper
+
+data = {
+        "id": 1,
+        "comment_str": "HelloWorld",
+        "user_id": "2",
+        "user_name": "bob"
+    }
+# transform dict to new_dict (after mapping)
+MAPPED_COMMENT_DICT = CommentMapper.transform(data)
+print(MAPPED_COMMENT_DICT)
+```
+
+Output:
+> `{'id': 1, 'comment_str': 'HelloWorld', 'user': {'name': 'bob', 'id': 2, 'first_name': None, 'tags': []}}`
+
+### Parse data dict to pydantic object
+To **parse** and **transform** a raw dict to a pydantic object:
 
 ```python
 # main.py
@@ -105,4 +126,4 @@ print(COMMENT)
 ```
 
 Output:
-> id=1 comment_str='HelloWorld' user=User(id=2, name='bob', first_name=None, tags=[])
+> `id=1 comment_str='HelloWorld' user=User(id=2, name='bob', first_name=None, tags=[])`
