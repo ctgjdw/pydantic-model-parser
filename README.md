@@ -116,11 +116,20 @@ data = {
 data_list = [data, data]
 parser = Parser(Comment, CommentMapper)
 
-# parse into a Comment entity
-COMMENT = parser.parse(data)
+try:
+    COMMENT = parser.parse(data)
+except TransformFuncError:
+    print("Error applying transform_func!")
+except PydanticError:
+    print("Validation Error when parsing into Pydantic")
 
 # parse into a list of Comment entities
-COMMENTS = parser.parse(data_list)
+try:
+    COMMENTS = parser.parse(data_list)
+except TransformFuncError:
+    print("Error applying transform_func!")
+except PydanticError:
+    print("Validation Error when parsing into Pydantic")
 
 print(COMMENT)
 ```

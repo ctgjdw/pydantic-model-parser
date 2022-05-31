@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from pydantic import BaseModel
-from model_parser import Mapping, BaseMapper, Parser
+from model_parser import Mapping, BaseMapper, Parser, PydanticError, TransformFuncError
 
 
 class User(BaseModel):
@@ -30,7 +30,7 @@ class CommentMapper(BaseMapper):
             Mapping(
                 "user_id",
                 "user.id",
-                lambda id_str: int(id_str),  # pylint: disable=unnecessary-lambda
+                lambda id_str: int(id_str) * 2,
             ),
             # user_first_name does not exist in input dict, defaults to None in new dict
             Mapping("user_first_name", "user.first_name"),
@@ -47,10 +47,20 @@ parser = Parser(Comment, CommentMapper)
 MAPPED_COMMENT_DICT = CommentMapper.transform(data)
 
 # parse into a Comment entity
-COMMENT = parser.parse(data)
+try:
+    COMMENT = parser.parse(data)
+except TransformFuncError:
+    print("Error applying transform_func!")
+except PydanticError:
+    print("Validation Error when parsing into Pydantic")
 
 # parse into a list of Comment entities
-COMMENTS = parser.parse(data_list)
+try:
+    COMMENTS = parser.parse(data_list)
+except TransformFuncError:
+    print("Error applying transform_func!")
+except PydanticError:
+    print("Validation Error when parsing into Pydantic")
 
 print(MAPPED_COMMENT_DICT)
 print(COMMENT)

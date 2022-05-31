@@ -28,3 +28,7 @@ class Mapping(NamedTuple):
 
 class TransformFuncError(Exception):
     pass
+
+
+class PydanticError(Exception):
+    pass

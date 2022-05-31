@@ -67,7 +67,7 @@ class BaseMapper(ABC):
             except Exception as err:
                 raise TransformFuncError(
                     f"The transform_func raised {err.__class__.__name__} when"
-                    + " mapping ({old_field_path}) to ({new_field_path})"
+                    f" mapping ({old_field_path}:{old_val}) to ({new_field_path})"
                 ) from err
 
             objects.set_(
