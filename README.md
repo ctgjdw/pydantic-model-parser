@@ -9,7 +9,7 @@ A simple package to transform/map dictionaries, before parsing it into Pydantic.
 ## Installation
 
 ```bash
-pip3 install pydantic-model-parser
+pip3 install pydantic-model-parser==2.0.0
 ```
 
 ## Usage
