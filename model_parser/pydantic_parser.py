@@ -1,8 +1,9 @@
 from typing import List, Union, overload, Dict, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from model_parser.mapper import BaseMapper
+from model_parser.custom_types import PydanticError
 
 
 class Parser:  # pylint: disable=too-few-public-methods
@@ -45,14 +46,27 @@ class Parser:  # pylint: disable=too-few-public-methods
                                         as defined by  the _model attr
 
         Raise:
-            ValidationError: Raised if there is a Validation Error
-                            that is detected by `Pydantic`. e.g. Invalid type-casting.
-            MappingError: Raised if the an `old_field_path` in the mapping tuple is invalid
+            PydanticError: Raised if there is a Validation Error
+                        after parsing into the `Pydantic` Model. e.g. Invalid type-casting.
             TransformFuncError: Raised if the transform_func ecounters an error, e.g. TypeError
         """
         if isinstance(data, dict):
             parsed = self._mapper.transform(data)
-            return self._model.parse_obj(parsed)
+            try:
+                return self._model.parse_obj(parsed)
+            except ValidationError as err:
+                raise PydanticError(
+                    f"Validation Error: Unable to parse entity - {parsed}"
+                ) from err
 
-        parsed = [self._mapper.transform(item) for item in data]
-        return [self._model.parse_obj(item) for item in parsed]
+        parsed_list = [self._mapper.transform(item) for item in data]
+
+        result = []
+        for item in parsed_list:
+            try:
+                result.append(self._model.parse_obj(item))
+            except ValidationError as err:
+                raise PydanticError(
+                    f"Validation Error: Unable to parse entity - {item}"
+                ) from err
+        return result

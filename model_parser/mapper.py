@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from pydash import objects
 
-from model_parser.custom_types import Mapping, MappingError, TransformFuncError
+from model_parser.custom_types import Mapping, TransformFuncError
 
 
 class BaseMapper(ABC):
@@ -20,11 +20,12 @@ class BaseMapper(ABC):
     @abstractmethod
     def get_mapping() -> List[Mapping]:
         """
-        Abstract static function containing the list of mappings, to be defined by the
-        implementing class and is used by the transform function to transform raw data.
+        Abstract static function containing the list of `Mapping`s, to be defined by the
+        implementing class and is used by the `transform` function to transform raw data.
 
         Returns:
-            List[Mapping]: List of `(old_field_path, new_field_path, transform_func)` mappings
+            List[Mapping]: List of `(old_field_path, new_field_path, transform_func, default_val)`
+                NamedTuples
         """
         raise NotImplementedError()
 
@@ -42,15 +43,22 @@ class BaseMapper(ABC):
             Dict[Any, Any]: The transformed data object.
 
         Raise:
-            MappingError: Raised if the an `old_field_path` in the mapping tuple is invalid
             TransformFuncError: Raised if the transform_func ecounters an error, e.g. TypeError
         """
         result = {}
-        for old_field_path, new_field_path, transform_func in cls.get_mapping():
+        for (
+            old_field_path,
+            new_field_path,
+            transform_func,
+            default_val,
+        ) in cls.get_mapping():
             if not objects.has(data, old_field_path):
-                raise MappingError(
-                    f"Invalid mapping, old_field_path does not exist for: {old_field_path}"
+                objects.set_(
+                    result,
+                    new_field_path,
+                    default_val,
                 )
+                continue
 
             old_val = objects.get(data, old_field_path)
 
@@ -59,7 +67,7 @@ class BaseMapper(ABC):
             except Exception as err:
                 raise TransformFuncError(
                     f"The transform_func raised {err.__class__.__name__} when"
-                    + " mapping ({old_field_path}) to ({new_field_path})"
+                    f" mapping ({old_field_path}:{old_val}) to ({new_field_path})"
                 ) from err
 
             objects.set_(
