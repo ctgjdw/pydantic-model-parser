@@ -27,8 +27,10 @@ class Mapping(NamedTuple):
 
 
 class TransformFuncError(Exception):
-    pass
+    def __str__(self) -> str:
+        return f"{self.args[0]}\n----\n{self.__cause__.__str__()}"
 
 
 class PydanticError(Exception):
-    pass
+    def __str__(self) -> str:
+        return f"{self.args[0]}\n----\n{self.__cause__.__str__()}"
