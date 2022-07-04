@@ -13,7 +13,8 @@ class BaseMapper(ABC):
     function.
 
     The `get_mapping` function will store an array of tuples as defined here:
-        - (`old_field_path`: str, `new_field_path`: str, `transform_func`: Optional[Callable])
+        - (`old_field_path`: str, `new_field_path`: str,
+        `transform_func`: Optional[Callable[Any, Dict]->Any])
     """
 
     @staticmethod
@@ -63,7 +64,7 @@ class BaseMapper(ABC):
             old_val = objects.get(data, old_field_path)
 
             try:
-                new_val = transform_func(old_val) if transform_func else old_val
+                new_val = transform_func(old_val, data) if transform_func else old_val
             except Exception as err:
                 raise TransformFuncError(
                     f"The transform_func raised {err.__class__.__name__} when"

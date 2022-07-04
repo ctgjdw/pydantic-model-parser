@@ -4,12 +4,12 @@ A simple package to transform/map dictionaries, before parsing it into Pydantic.
 
 ## Requirements
 
-- The models/entities should conform to `Pydantic's` Model specifications and should inherit the `pydantic.BaseModel`.
+- The models/entities should conform to `Pydantic's` Model specifications and should inherit the `pydantic.BaseModel` class.
 
 ## Installation
 
 ```bash
-pip3 install pydantic-model-parser==2.0.*
+pip3 install pydantic-model-parser==3.0.*
 ```
 
 ## Usage
@@ -32,15 +32,17 @@ class Comment(BaseModel):
     id: int
     comment_str: str
     user: User
+    address_str: str
 ```
 
-Next, define the `Mapper`. The mapper can be used to **rearrange** dictionary keys and **perform** transformations on the values.
+Next, define the `Mapper`. The mapper can be used to **rearrange** dictionary keys and **perform** transformations on the values. The mapper is a strict whitelist of **wanted** fields. Any fields not defined in the mapper will be **dropped** from the output model.
 
 The Mapping args are as follows:
 
 - (`old_field_path`: str, `new_field_path`: str, `transform_func`: Optional[Callable] = None, `default_val`: [None | Dict | List] = None)
 - `transform_func` of `None` maps the value as per the original value
-- `transform_func` of `lambda x: x * 2` maps the value as double of the original value
+- `transform_func` of `lambda x,_: x * 2` maps the value as double of the original value
+- `transform_func` of `lambda x,y: x + y.field_name` maps the value to `x + y.field_name`, where y is the original data dictionary
 - `default_value` is used if `old_field_path` **does not exist** in the input dict
 - `old_field_path`'s value is mapped to the position defined in `new_field_path` in the output dictionary and subsequently parsed into the `BaseModel`
   - The `.` in the path delimits the nested levels in the dictionaries. e.g. `user.id` refers to:
@@ -71,7 +73,14 @@ class CommentMapper(BaseMapper):
             # Rename key from user_name to user.name, where the `.` indicates a level of nesting
             Mapping("user_name", "user.name"),
             # Using transform_func to transform value and insert to new dict
-            Mapping("user_id", "user.id", lambda id_str: int(id_str)),
+            Mapping("user_id", "user.id", lambda id_str, _: int(id_str)),
+            # Using transform_func to transform value using an existing value from the original dict
+            ## This is prone to more errors, please catch and handle TransformFuncError
+            Mapping(
+                "street_name",
+                "address_str",
+                lambda street, data: f"{street} {data.get('block_name', 'default')} {data.get('unit_name', 'default')}",
+            ),
             # user_first_name does not exist in input dict, defaults to None in new dict
             Mapping("user_first_name", "user.first_name"),
             # user_tags does not exist in input dict, use default_val instead in new dict
@@ -89,15 +98,23 @@ data = {
         "id": 1,
         "comment_str": "HelloWorld",
         "user_id": "2",
-        "user_name": "bob"
+        "user_name": "bob",
+        "street_name": "123 St",
+        "block_name": "244",
+        "unit_name": "10-123"
     }
 # transform dict to new_dict (after mapping)
-MAPPED_COMMENT_DICT = CommentMapper.transform(data)
-print(MAPPED_COMMENT_DICT)
+try:
+  MAPPED_COMMENT_DICT = CommentMapper.transform(data)
+  print(MAPPED_COMMENT_DICT)
+except TransformFuncError as err:
+    print(err)
+except PydanticError as err:
+    print(err)
 ```
 
 Output:
-> `{'id': 1, 'comment_str': 'HelloWorld', 'user': {'name': 'bob', 'id': 2, 'first_name': None, 'tags': []}}`
+> `{'id': 1, 'comment_str': 'HelloWorld', 'user': {'name': 'bob', 'id': 2, 'first_name': None, 'tags': []}, 'address_str': '123 St 244 10-123'}`
 
 ### Parse data dict to pydantic object
 To **parse** and **transform** a raw dict to a pydantic object:
@@ -108,11 +125,14 @@ from comment import Comment, CommentMapper
 from model_parser import Parser
 
 data = {
-        "id": 1,
-        "comment_str": "HelloWorld",
-        "user_id": "2",
-        "user_name": "bob"
-    }
+    "id": 1,
+    "comment_str": "HelloWorld",
+    "user_id": "2",
+    "user_name": "bob",
+    "street_name": "123 St",
+    "block_name": "244",
+    "unit_name": "10-123",
+}
 data_list = [data, data]
 parser = Parser(Comment, CommentMapper)
 
@@ -135,4 +155,4 @@ print(COMMENT)
 ```
 
 Output:
-> `id=1 comment_str='HelloWorld' user=User(id=2, name='bob', first_name=None, tags=[])`
+> `id=1 comment_str='HelloWorld' user=User(id=2, name='bob', first_name=None, tags=[]) address_str='123 St 244 10-123'`
