@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from pydash import objects
 
-from model_parser.custom_types import Mapping, TransformFuncError
+from model_parser.custom_types import DefaultValFuncError, Mapping, TransformFuncError
 
 
 class BaseMapper(ABC):
@@ -12,9 +12,10 @@ class BaseMapper(ABC):
     by an EntityMapper class. The class stores the mappings in the `get_mapping`
     function.
 
-    The `get_mapping` function will store an array of tuples as defined here:
+    The `get_mapping` function will store an array of NamedTuples as defined here:
         - (`old_field_path`: str, `new_field_path`: str,
-        `transform_func`: Optional[Callable[Any, Dict]->Any])
+        `transform_func`: Optional[Callable], `default_val`: [None|Dict|List]
+        , `default_val_func`: Optional[Callable])
     """
 
     @staticmethod
@@ -25,8 +26,8 @@ class BaseMapper(ABC):
         implementing class and is used by the `transform` function to transform raw data.
 
         Returns:
-            List[Mapping]: List of `(old_field_path, new_field_path, transform_func, default_val)`
-                NamedTuples
+            List[Mapping]: List of `(old_field_path, new_field_path, transform_func,
+                default_val, default_val_func)` NamedTuples
         """
         raise NotImplementedError()
 
@@ -45,6 +46,7 @@ class BaseMapper(ABC):
 
         Raise:
             TransformFuncError: Raised if the transform_func ecounters an error, e.g. TypeError
+            DefaultValFuncError: Raised if the default_val_func encounters an error, e.g. KeyError
         """
         result = {}
         for (
@@ -52,14 +54,20 @@ class BaseMapper(ABC):
             new_field_path,
             transform_func,
             default_val,
+            default_val_func,
         ) in cls.get_mapping():
-            if not objects.has(data, old_field_path):
-                objects.set_(
-                    result,
-                    new_field_path,
-                    default_val,
-                )
-                continue
+            try:
+                if not objects.has(data, old_field_path):
+                    objects.set_(
+                        result,
+                        new_field_path,
+                        default_val if not default_val_func else default_val_func(data),
+                    )
+                    continue
+            except Exception as err:
+                raise DefaultValFuncError(
+                    f"The default_val_func raised {err.__class__.__name__}"
+                ) from err
 
             old_val = objects.get(data, old_field_path)
 

@@ -1,3 +1,4 @@
+from model_parser.custom_types import DefaultValFuncError
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -16,6 +17,7 @@ class Comment(BaseModel):
     comment_str: str
     user: User
     address_str: str
+    comment_backup: Optional[str]
 
 
 class CommentMapper(BaseMapper):
@@ -42,6 +44,11 @@ class CommentMapper(BaseMapper):
             Mapping("user_first_name", "user.first_name"),
             # user_tags does not exist in input dict, use default_val instead in new dict
             Mapping("user_tags", "user.tags", default_val=[]),
+            Mapping(
+                "comment_backup",
+                "comment_backup",
+                default_val_func=lambda data: data.get("comment_str"),
+            ),
         ]
 
 
@@ -65,6 +72,8 @@ try:
     COMMENT = parser.parse(data)
 except TransformFuncError:
     print("Error applying transform_func!")
+except DefaultValFuncError:
+    print("Error applying default_val_func!")
 except PydanticError:
     print("Validation Error when parsing into Pydantic")
 
@@ -73,6 +82,8 @@ try:
     COMMENTS = parser.parse(data_list)
 except TransformFuncError:
     print("Error applying transform_func!")
+except DefaultValFuncError:
+    print("Error applying default_val_func!")
 except PydanticError:
     print("Validation Error when parsing into Pydantic")
 

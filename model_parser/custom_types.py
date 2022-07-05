@@ -22,15 +22,24 @@ class Mapping(NamedTuple):
             Defaults to `None`
         default_val (None | Dict | List): The default value to apply if the old_field_path
             is not present in the input dict. Defaults to `None`
+        default_val_func (None | Callable): The function exposes the original data as a parameter
+            and allows the setting of the default value using the original data field
+            . Defaults to `None`
     """
 
     old_field_path: str
     new_field_path: str
     transform_func: Optional[Callable[[Any, Dict[Any, Any]], Any]] = None
     default_val: Union[None, Dict, List] = None
+    default_val_func: Optional[Callable[[Dict[Any, Any]], Any]] = None
 
 
 class TransformFuncError(Exception):
+    def __str__(self) -> str:
+        return f"{self.args[0]}\n--CAUSE--\n{self.__cause__.__str__()}"
+
+
+class DefaultValFuncError(Exception):
     def __str__(self) -> str:
         return f"{self.args[0]}\n--CAUSE--\n{self.__cause__.__str__()}"
 
