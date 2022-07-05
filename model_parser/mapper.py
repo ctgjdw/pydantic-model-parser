@@ -14,7 +14,7 @@ class BaseMapper(ABC):
 
     The `get_mapping` function will store an array of NamedTuples as defined here:
         - (`old_field_path`: str, `new_field_path`: str,
-        `transform_func`: Optional[Callable], `default_val`: [None|Dict|List]
+        `transform_func`: Optional[Callable[[Any,Dict], Any]], `default_val`: [None|Dict|List]
         , `default_val_func`: Optional[Callable])
     """
 

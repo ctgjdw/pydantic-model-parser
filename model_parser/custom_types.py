@@ -16,7 +16,7 @@ class Mapping(NamedTuple):
             the level of nesting is delimited by `.`
         new_field_path (str): The path to the position of the key in the output dict,
             the level of nesting is delimited by `.`
-        transform_func ((Any, Dict[Any,Any]) -> Any): The function to apply to the old_val prior
+        transform_func (Callable[[Any, Dict], Any]): The function to apply to the old_val prior
             to mapping the value to
             the output dict. Takes in the original data dictionary as a 2nd argument
             Defaults to `None`
