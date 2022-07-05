@@ -44,8 +44,8 @@ The Mapping args are as follows:
 - `transform_func` (Optional) of `None` maps the value as per the original value
 - `transform_func` of `lambda x,_: x * 2` maps the value as double of the original value
 - `transform_func` of `lambda x,y: x + y.field_name` maps the value to `x + y.field_name`, where y is the original data dictionary
-- `default_val` (Optional) is used if `old_field_path` **does not exist** in the input dict as a key and `default_val_func` is not null
-- `default_val_func` (Optional) is used if `old_field_path` **does not exist** in the input dict as a key. This function takes in the original data dictionary as an arguement for inserting old data fields as defaults during runtime.
+- `default_val` (Optional) is used if `old_field_path` **does not exist or has a None value** in the input dict as a key and `default_val_func` is not null
+- `default_val_func` (Optional) is used if `old_field_path` **does not exist or has a None value** in the input dict as a key. This function takes in the original data dictionary as an arguement for inserting old data fields as defaults during runtime.
 - `old_field_path`'s value is mapped to the position defined in `new_field_path` in the output dictionary and subsequently parsed into the `BaseModel`
   - The `.` in the path delimits the nested levels in the dictionaries. e.g. `user.id` refers to:
 
