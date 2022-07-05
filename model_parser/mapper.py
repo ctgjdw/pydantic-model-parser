@@ -56,32 +56,19 @@ class BaseMapper(ABC):
             default_val,
             default_val_func,
         ) in cls.get_mapping():
-            try:
-                if not objects.has(data, old_field_path):
+            old_val = objects.get(data, old_field_path, default=None)
+            if old_val is None:
+                try:
                     objects.set_(
                         result,
                         new_field_path,
                         default_val if not default_val_func else default_val_func(data),
                     )
                     continue
-            except Exception as err:
-                raise DefaultValFuncError(
-                    f"The default_val_func raised {err.__class__.__name__}"
-                ) from err
-
-            old_val = objects.get(data, old_field_path)
-
-            try:
-                if old_val is None:
-                    objects.set_(
-                        result,
-                        new_field_path,
-                        default_val if not default_val_func else default_val_func(data),
-                    )
-            except Exception as err:
-                raise DefaultValFuncError(
-                    f"The default_val_func raised {err.__class__.__name__}"
-                ) from err
+                except Exception as err:
+                    raise DefaultValFuncError(
+                        f"The default_val_func raised {err.__class__.__name__}"
+                    ) from err
 
             try:
                 new_val = transform_func(old_val, data) if transform_func else old_val
