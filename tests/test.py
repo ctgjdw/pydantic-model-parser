@@ -1,7 +1,8 @@
-from model_parser.custom_types import DefaultValFuncError
 from typing import List, Optional
 
 from pydantic import BaseModel
+
+from model_parser.custom_types import DefaultValFuncError
 from model_parser import Mapping, BaseMapper, Parser, PydanticError, TransformFuncError
 
 
