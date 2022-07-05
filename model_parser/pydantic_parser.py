@@ -49,6 +49,7 @@ class Parser:  # pylint: disable=too-few-public-methods
             PydanticError: Raised if there is a Validation Error
                         after parsing into the `Pydantic` Model. e.g. Invalid type-casting.
             TransformFuncError: Raised if the transform_func ecounters an error, e.g. TypeError
+            DefaultValFuncError: Raised if the default_val_func ecounters an error, e.g. KeyError
         """
         if isinstance(data, dict):
             parsed = self._mapper.transform(data)
