@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Callable, Union
 
 from pydash import objects
 
@@ -58,29 +58,51 @@ class BaseMapper(ABC):
         ) in cls.get_mapping():
             old_val = objects.get(data, old_field_path, default=None)
             if old_val is None:
-                try:
-                    objects.set_(
-                        result,
-                        new_field_path,
-                        default_val if not default_val_func else default_val_func(data),
-                    )
-                    continue
-                except Exception as err:
-                    raise DefaultValFuncError(
-                        f"The default_val_func raised {err.__class__.__name__}"
-                    ) from err
-
-            try:
-                new_val = transform_func(old_val, data) if transform_func else old_val
-            except Exception as err:
-                raise TransformFuncError(
-                    f"The transform_func raised {err.__class__.__name__} when"
-                    f" mapping ({old_field_path}:{old_val}) to ({new_field_path})"
-                ) from err
+                cls.handle_default_val(
+                    result, data, new_field_path, default_val, default_val_func
+                )
+                continue
 
             objects.set_(
                 result,
                 new_field_path,
-                new_val,
+                cls.get_new_val(
+                    data, old_val, transform_func, old_field_path, new_field_path
+                ),
             )
         return result
+
+    @staticmethod
+    def handle_default_val(
+        new_dict: Dict[Any, Any],
+        old_dict: Dict[Any, Any],
+        path: str,
+        default_val: Union[None, Dict, List],
+        default_val_func: Callable[[Dict[Any, Any]], Any],
+    ):
+        try:
+            objects.set_(
+                new_dict,
+                path,
+                default_val if not default_val_func else default_val_func(old_dict),
+            )
+        except Exception as err:
+            raise DefaultValFuncError(
+                f"The default_val_func raised {err.__class__.__name__}"
+            ) from err
+
+    @staticmethod
+    def get_new_val(
+        old_dict: Dict[Any, Any],
+        old_val: Any,
+        transform_func: Callable[[Any, Dict[Any, Any]], Any],
+        old_field_path: str,
+        new_field_path: str,
+    ):
+        try:
+            return transform_func(old_val, old_dict) if transform_func else old_val
+        except Exception as err:
+            raise TransformFuncError(
+                f"The transform_func raised {err.__class__.__name__} when"
+                f" mapping ({old_field_path}:{old_val}) to ({new_field_path})"
+            ) from err
