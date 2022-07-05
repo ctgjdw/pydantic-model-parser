@@ -58,41 +58,38 @@ class BaseMapper(ABC):
         ) in cls.get_mapping():
             old_val = objects.get(data, old_field_path, default=None)
             if old_val is None:
-                cls.handle_default_val(
-                    result, data, new_field_path, default_val, default_val_func
+                resolved_default_val = cls.__get_def_val(
+                    data, default_val, default_val_func
+                )
+                objects.set_(
+                    result,
+                    new_field_path,
+                    resolved_default_val,
                 )
                 continue
 
             objects.set_(
                 result,
                 new_field_path,
-                cls.get_new_val(
+                cls.__get_new_val(
                     data, old_val, transform_func, old_field_path, new_field_path
                 ),
             )
         return result
 
-    @staticmethod
-    def handle_default_val(
-        new_dict: Dict[Any, Any],
+    def __get_def_val(
         old_dict: Dict[Any, Any],
-        path: str,
         default_val: Union[None, Dict, List],
         default_val_func: Callable[[Dict[Any, Any]], Any],
     ):
         try:
-            objects.set_(
-                new_dict,
-                path,
-                default_val if not default_val_func else default_val_func(old_dict),
-            )
+            return default_val if not default_val_func else default_val_func(old_dict)
         except Exception as err:
             raise DefaultValFuncError(
                 f"The default_val_func raised {err.__class__.__name__}"
             ) from err
 
-    @staticmethod
-    def get_new_val(
+    def __get_new_val(
         old_dict: Dict[Any, Any],
         old_val: Any,
         transform_func: Callable[[Any, Dict[Any, Any]], Any],
