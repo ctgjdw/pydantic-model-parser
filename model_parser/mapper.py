@@ -78,6 +78,7 @@ class BaseMapper(ABC):
         return result
 
     def __get_def_val(
+        self,
         old_dict: Dict[Any, Any],
         default_val: Union[None, Dict, List],
         default_val_func: Callable[[Dict[Any, Any]], Any],
@@ -90,6 +91,7 @@ class BaseMapper(ABC):
             ) from err
 
     def __get_new_val(
+        self,
         old_dict: Dict[Any, Any],
         old_val: Any,
         transform_func: Callable[[Any, Dict[Any, Any]], Any],
