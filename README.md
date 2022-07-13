@@ -40,7 +40,7 @@ Next, define the `Mapper`. The mapper can be used to **rearrange** dictionary ke
 
 The Mapping args are as follows:
 
-- (`old_field_path`: str, `new_field_path`: str, `transform_func`: Optional[Callable] = None, `default_val`: [None | Dict | List] = None, `default_val_func`: Optional[Callable])
+- (`old_field_path`: str, `new_field_path`: str, `transform_func`: Optional[Callable] = None, `default_val`: Any = None, `default_val_func`: Optional[Callable])
 - `transform_func` (Optional) of `None` maps the value as per the original value
 - `transform_func` of `lambda x,_: x * 2` maps the value as double of the original value
 - `transform_func` of `lambda x,y: x + y.field_name` maps the value to `x + y.field_name`, where y is the original data dictionary

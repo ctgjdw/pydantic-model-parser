@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Callable, Union
+from typing import Any, Dict, List, Callable
 
 from pydash import objects
 
@@ -80,7 +80,7 @@ class BaseMapper(ABC):
     @staticmethod
     def __get_def_val(
         old_dict: Dict[Any, Any],
-        default_val: Union[None, Dict, List],
+        default_val: Any,
         default_val_func: Callable[[Dict[Any, Any]], Any],
     ):
         try:
