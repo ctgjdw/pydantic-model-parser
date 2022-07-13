@@ -80,7 +80,7 @@ class BaseMapper(ABC):
     @staticmethod
     def __get_def_val(
         old_dict: Dict[Any, Any],
-        default_val: Union[None, Dict, List],
+        default_val: Any,
         default_val_func: Callable[[Dict[Any, Any]], Any],
     ):
         try:

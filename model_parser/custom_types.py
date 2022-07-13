@@ -20,7 +20,7 @@ class Mapping(NamedTuple):
             to mapping the value to
             the output dict. Takes in the original data dictionary as a 2nd argument
             Defaults to `None`
-        default_val (None | Dict | List): The default value to apply if the old_field_path
+        default_val (Any): The default value to apply if the old_field_path
             is not present in the input dict. Defaults to `None`
         default_val_func (None | Callable): The function exposes the original data as a parameter
             and allows the setting of the default value using the original data field
@@ -30,7 +30,7 @@ class Mapping(NamedTuple):
     old_field_path: str
     new_field_path: str
     transform_func: Optional[Callable[[Any, Dict[Any, Any]], Any]] = None
-    default_val: Union[None, Dict, List] = None
+    default_val: Any = None
     default_val_func: Optional[Callable[[Dict[Any, Any]], Any]] = None
 
 
