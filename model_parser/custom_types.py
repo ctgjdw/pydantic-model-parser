@@ -1,4 +1,4 @@
-from typing import Any, Callable, NamedTuple, Optional, Union, Dict, List
+from typing import Any, Callable, NamedTuple, Optional, Dict
 
 
 class Mapping(NamedTuple):
