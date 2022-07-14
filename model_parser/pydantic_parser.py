@@ -1,4 +1,4 @@
-from typing import List, Union, overload, Dict, Any
+from typing import List, Union, overload, Dict, Any, Type
 
 from pydantic import BaseModel, ValidationError
 
@@ -13,12 +13,12 @@ class Parser:  # pylint: disable=too-few-public-methods
 
     Attributes:
 
-        _model BaseModel: The Pydantic Model
+        _model Type[BaseModel]: The Pydantic Model
 
-        _mapper BaseMapper: The Mapper Class defined using model_parser.mapper.BaseMapper
+        _mapper Type[BaseMapper]: The Mapper Class defined using model_parser.mapper.BaseMapper
     """
 
-    def __init__(self, entity_model: BaseModel, mapper: BaseMapper) -> None:
+    def __init__(self, entity_model: Type[BaseModel], mapper: Type[BaseMapper]) -> None:
         self._model = entity_model
         self._mapper = mapper
 

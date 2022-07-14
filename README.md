@@ -141,7 +141,13 @@ data = {
     "unit_name": "10-123",
 }
 data_list = [data, data]
+# Note that the arguments are type definitions
 parser = Parser(Comment, CommentMapper)
+
+# Do not instantiate your entity & mapper as a class instance
+parser = Parser(Comment(), CommentMapper()) # This is wrong
+
+
 
 try:
     COMMENT = parser.parse(data)
