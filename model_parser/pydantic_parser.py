@@ -13,9 +13,9 @@ class Parser:  # pylint: disable=too-few-public-methods
 
     Attributes:
 
-        _model BaseModel: The Pydantic Model
+        _model Type[BaseModel]: The Pydantic Model
 
-        _mapper BaseMapper: The Mapper Class defined using model_parser.mapper.BaseMapper
+        _mapper Type[BaseMapper]: The Mapper Class defined using model_parser.mapper.BaseMapper
     """
 
     def __init__(self, entity_model: Type[BaseModel], mapper: Type[BaseMapper]) -> None:

@@ -141,7 +141,7 @@ data = {
     "unit_name": "10-123",
 }
 data_list = [data, data]
-parser = Parser(Comment, CommentMapper)
+parser = Parser(Comment, CommentMapper) # arguments are type definitions
 
 try:
     COMMENT = parser.parse(data)
