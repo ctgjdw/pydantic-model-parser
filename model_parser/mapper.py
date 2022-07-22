@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Callable
+from typing import Any, Dict, List, Callable, Optional
 
 from pydash import objects
 
@@ -81,7 +81,7 @@ class BaseMapper(ABC):
     def __get_def_val(
         old_dict: Dict[Any, Any],
         default_val: Any,
-        default_val_func: Callable[[Dict[Any, Any]], Any],
+        default_val_func: Optional[Callable[[Dict[Any, Any]], Any]],
     ):
         try:
             return default_val if not default_val_func else default_val_func(old_dict)
@@ -94,7 +94,7 @@ class BaseMapper(ABC):
     def __get_new_val(
         old_dict: Dict[Any, Any],
         old_val: Any,
-        transform_func: Callable[[Any, Dict[Any, Any]], Any],
+        transform_func: Optional[Callable[[Any, Dict[Any, Any]], Any]],
         old_field_path: str,
         new_field_path: str,
     ):
