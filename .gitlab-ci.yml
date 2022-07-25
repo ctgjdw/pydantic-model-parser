@@ -43,6 +43,13 @@ formatting:
   script:
     - find . -not \( -path ./.cache -prune \) -type f -name "*.py" | xargs python -m black --check
 
+run-test-cases:
+  stage: test
+  needs:
+    - install-packages
+  script:
+    - python3 -m unittest discover -s tests -v
+
 linting:
   stage: test
   needs:
@@ -87,6 +94,7 @@ wheel:
   needs:
     - linting
     - formatting
+    - run-test-cases
     - code-complexity
     - job: audit
       artifacts: false
